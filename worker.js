@@ -1,8 +1,10 @@
 /**
  * Perplexity Web App — Cloudflare Worker
  *
- * Serves the full Perplexity UI and reverse-proxies API/RPC calls
- * to the Perplexity RPC daemon on Spark via Cloudflare Tunnel.
+ * Serves the full Perplexity UI from the private repo
+ * (itsablabla/perplexity-webapp-ui) and reverse-proxies
+ * API/RPC calls to the Perplexity RPC daemon on Spark
+ * via Cloudflare Tunnel.
  *
  * Deployment:
  *   1. wrangler deploy
