@@ -1,0 +1,18 @@
+# Cloudflare Tunnel config for Spark
+#
+# Run on Spark:
+#   cloudflared tunnel --config /etc/cloudflared/perplexity.yml run
+#
+# This exposes the Perplexity RPC daemon (localhost:8443)
+# as a private ingress reachable from the Cloudflare Worker.
+
+tunnel: <TUNNEL_UUID>
+credentials-file: /etc/cloudflared/<TUNNEL_UUID>.json
+
+ingress:
+  # Perplexity RPC daemon on Spark
+  - hostname: perplexity-rpc.garzalabs.internal
+    service: http://127.0.0.1:8443
+
+  # Catch-all — return 404 for any other hostname
+  - service: http_status:404
