@@ -1,31 +1,16 @@
-# Perplexity Web App — Phase 1 Scaffold
+# Perplexity Web App — Cloudflare Phase 1 Scaffold
 
-Public deployment scaffold for the Perplexity web app. This repository
-contains only the deployment configuration used by Coolify:
+This repository contains the public Phase 1 deployment scaffold for the
+Perplexity web UI.
 
-- `docker-compose.yml`
-- `nginx.conf`
-- `README.md`
+The full Perplexity UI comes from the Electron build:
 
-All secrets are supplied through Coolify environment variables and are
-never committed to this public repository.
+- [Perplexity-app.zip v1.0.0](https://github.com/itsablabla/perplexity-app/releases/download/v1.0.0/Perplexity-app.zip)
 
-## Fastest Spark round-trip
+Phase 1 goal:
+- Host the full Perplexity UI on Cloudflare.
+- Reverse-proxy API/RPC calls from the UI to the Perplexity RPC daemon on Spark.
+- Use Cloudflare Tunnel for a private, fast path from Cloudflare to Spark.
+- Do not use Coolify for this deployment.
 
-The Phase 1 configuration intentionally avoids a Tailscale sidecar:
-
-- The Coolify host is already on the tailnet.
-- The webapp container uses normal Docker bridge networking for reliable
-  Coolify/Traefik discovery.
-- `extra_hosts` maps `spark-341c.tailc48b95.ts.net` to Spark's Tailscale
-  IP, so the container can reach Spark with minimal extra hops.
-
-Required Coolify environment variables:
-
-- `PPLX_PAIRING_TOKEN`
-- `PPLX_RPC_UPSTREAM`
-- `PPLX_SPARK_TAILNET_IP`
-
-Optional:
-
-- `PPLX_PORT`
+This public repository intentionally contains no secrets.
