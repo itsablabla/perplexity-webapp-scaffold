@@ -17,9 +17,10 @@
 const RPC_UPSTREAM = "http://127.0.0.1:8443";
 
 // UI assets are served from Cloudflare Pages.
-// The Pages binding is configured in wrangler.jsonc under [site].
 // The full Perplexity UI is at: Perplexity/resources/frontend/
+// Pages project: perplexity-webapp.pages.dev
 
+const PAGES_URL = "https://perplexity-webapp.pages.dev";
 const UI_BASE = "/Perplexity/resources/frontend";
 
 // Fallback HTML if the UI isn't found
@@ -91,20 +92,23 @@ export default {
     }
 
     // Serve UI from Cloudflare Pages
-    // The full Perplexity UI is at /Perplexity/resources/frontend/
     // Map / to /Perplexity/resources/frontend/index.html
     if (url.pathname === "/" || url.pathname === "/index.html") {
       return this.fetchUI(request, env, "/Perplexity/resources/frontend/index.html");
     }
 
-    // Serve other UI assets
-    return this.fetchUI(request, env, url.pathname);
+    // Serve other UI assets (strip the /Perplexity/resources/frontend prefix if present)
+    let uiPath = url.pathname;
+    if (uiPath.startsWith(UI_BASE)) {
+      uiPath = uiPath.slice(UI_BASE.length);
+    }
+    return this.fetchUI(request, env, uiPath);
   },
 
   async fetchUI(request, env, uiPath) {
     try {
       // Fetch the UI asset from Cloudflare Pages
-      const uiRequest = new Request(`https://perplexity-webapp.pages.dev${uiPath}`, {
+      const uiRequest = new Request(`${PAGES_URL}${UI_BASE}${uiPath}`, {
         method: request.method,
         headers: {
           "Accept": request.headers.get("Accept") || "*/*",
