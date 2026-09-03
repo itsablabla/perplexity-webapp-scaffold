@@ -16,9 +16,14 @@
 // For Phase 1, this points to the Cloudflare Tunnel ingress on Spark.
 const RPC_UPSTREAM = "http://127.0.0.1:8443";
 
-// UI assets are served from Cloudflare Pages or inlined here.
-// Phase 1: placeholder page that confirms the tunnel is live.
-const UI_HTML = `
+// UI assets are served from Cloudflare Pages.
+// The Pages binding is configured in wrangler.jsonc under [site].
+// The full Perplexity UI is at: Perplexity/resources/frontend/
+
+const UI_BASE = "/Perplexity/resources/frontend";
+
+// Fallback HTML if the UI isn't found
+const FALLBACK_HTML = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,10 +90,48 @@ export default {
       }
     }
 
-    // Serve UI
-    return new Response(UI_HTML, {
-      status: 200,
-      headers: { "Content-Type": "text/html; charset=utf-8" },
-    });
+    // Serve UI from Cloudflare Pages
+    // The full Perplexity UI is at /Perplexity/resources/frontend/
+    // Map / to /Perplexity/resources/frontend/index.html
+    if (url.pathname === "/" || url.pathname === "/index.html") {
+      return this.fetchUI(request, env, "/Perplexity/resources/frontend/index.html");
+    }
+
+    // Serve other UI assets
+    return this.fetchUI(request, env, url.pathname);
+  },
+
+  async fetchUI(request, env, uiPath) {
+    try {
+      // Fetch the UI asset from Cloudflare Pages
+      const uiRequest = new Request(`https://perplexity-webapp.pages.dev${uiPath}`, {
+        method: request.method,
+        headers: {
+          "Accept": request.headers.get("Accept") || "*/*",
+        },
+      });
+
+      const uiResponse = await fetch(uiRequest);
+      if (uiResponse.status === 200) {
+        return new Response(uiResponse.body, {
+          status: 200,
+          headers: {
+            "Content-Type": uiResponse.headers.get("Content-Type") || "application/octet-stream",
+            "Cache-Control": "public, max-age=86400",
+          },
+        });
+      }
+
+      // Fallback to placeholder
+      return new Response(FALLBACK_HTML, {
+        status: 200,
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+    } catch (err) {
+      return new Response(FALLBACK_HTML, {
+        status: 200,
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+    }
   },
 };
