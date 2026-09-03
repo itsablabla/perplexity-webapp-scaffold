@@ -1,0 +1,12 @@
+name = "perplexity-webapp"
+main = "worker.js"
+compatibility_date = "2026-09-03"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+logs = true
+
+# RPC upstream binding — set to the Cloudflare Tunnel ingress on Spark.
+# For Phase 1, this is a local tunnel endpoint.
+[vars]
+RPC_UPSTREAM = "http://127.0.0.1:8443"
